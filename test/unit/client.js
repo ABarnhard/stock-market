@@ -33,5 +33,21 @@ describe('Client', function(){
      });
     });
   });
+  describe('#sell', function(){
+    it('should remove stock from portfolio, increase cash, and decrease position', function(done){
+      var bob = new Client('Bob Smith', 10000);
+      bob.portfolio.stocks = [{symbol:'AAPL',count:50,price:94.06}, {symbol:'MSFT',count:10,price:44.84}];
+
+      bob.sell('aapl', 20, function(client){
+        expect(client.cash).to.be.above(10000);
+        expect(client.portfolio.stocks[0].count).to.equal(30);
+      });
+      bob.sell('msft', 10, function(client){
+        expect(client.portfolio.stocks).to.have.length(1);
+        done();
+      });
+    });
+
+  });
 
 });

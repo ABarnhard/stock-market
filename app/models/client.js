@@ -9,17 +9,34 @@ function Client(name, cash){
   this.portfolio = new Portfolio(name + '\'s portfolio');
 }
 
-Client.prototype.purchase = function(symbol, qty, callback){
+Client.prototype.purchase = function(symbol, qty, callBack){
   var that = this;
+  qty = parseInt(qty);
   Stock.getQuote(symbol, function(quote){
     if(that.cash >= quote * qty){
       that.cash -= quote * qty;
       that.portfolio.add(symbol, qty);
       var index = findStock(that.portfolio.stocks, symbol);
       that.portfolio.stocks[index].price = quote;
-      callback(that);
+      callBack(that);
     }
   });
+};
+
+Client.prototype.sell = function(symbol, qty, callBack){
+  var that = this;
+  qty = parseInt(qty);
+  var index = findStock(this.portfolio.stocks, symbol);
+  if(index >= 0){
+    if(this.portfolio.stocks[index].count >= qty){
+      Stock.getQuote(symbol, function(quote){
+        that.cash += qty * quote;
+        that.portfolio.stocks[index].price = quote;
+        that.portfolio.del(symbol, qty);
+        callBack(that);
+      });
+    }
+  }
 };
 
 Client.prototype.position = function(){
